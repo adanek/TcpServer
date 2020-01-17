@@ -3,9 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TcpServer", "TcpServer\TcpServer.csproj", "{95B57762-42F0-439C-B826-FAFC15C50572}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TcpServer", "TcpServer\TcpServer.csproj", "{95B57762-42F0-439C-B826-FAFC15C50572}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TcpServerDemo", "TcpServerDemo\TcpServerDemo.csproj", "{4E196BF5-846A-4F5F-B0A1-A0B1F4E061F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TcpServerDemo", "TcpServerDemo\TcpServerDemo.csproj", "{4E196BF5-846A-4F5F-B0A1-A0B1F4E061F3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3454007C-64B5-4021-8D71-7490F95B313D}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\WdIoT.Platform.EchoServer\.editorconfig = ..\..\WdIoT.Platform.EchoServer\.editorconfig
+		..\.gitignore = ..\.gitignore
+		..\LICENSE = ..\LICENSE
+		..\README.md = ..\README.md
+		..\stylecop.json = ..\stylecop.json
+		..\..\WdIoT.Platform.Api\WorldDirect.EnergySolutions.ruleset = ..\..\WdIoT.Platform.Api\WorldDirect.EnergySolutions.ruleset
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TcpTestClient", "TcpTestClient\TcpTestClient.csproj", "{03043F81-5BDA-42E5-93A6-FC097D99D858}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +33,10 @@ Global
 		{4E196BF5-846A-4F5F-B0A1-A0B1F4E061F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E196BF5-846A-4F5F-B0A1-A0B1F4E061F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E196BF5-846A-4F5F-B0A1-A0B1F4E061F3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{03043F81-5BDA-42E5-93A6-FC097D99D858}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{03043F81-5BDA-42E5-93A6-FC097D99D858}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{03043F81-5BDA-42E5-93A6-FC097D99D858}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{03043F81-5BDA-42E5-93A6-FC097D99D858}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

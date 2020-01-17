@@ -1,23 +1,38 @@
-﻿using Nito.AsyncEx;
+﻿// Copyright (c) World-Direct eBusiness solutions GmbH. All rights reserved.
+// Licensed under the The Unlicense license. See LICENSE file in the project root for full license information.
+
+using Nito.AsyncEx;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace TcpServerDemo
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            var server = new TcpServer(7);
-            var cts = new CancellationTokenSource(5000);
+            var loggerFactory = LoggerFactory.Create(c =>
+            {
+                c.AddConsole(c1 =>
+                {
+                    c1.IncludeScopes = true;
+                });
+
+                c.SetMinimumLevel(LogLevel.Trace);
+            });
+
+            var server = new TcpServer(7, loggerFactory.CreateLogger("A"));
+            using var cts = new CancellationTokenSource();
             try
             {
-                server.RunAsync(cts.Token).GetAwaiter().GetResult();
+                await server.RunAsync(cts.Token).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
@@ -31,14 +46,16 @@ namespace TcpServerDemo
     class TcpServer
     {
         private readonly int port;
-        private List<Task<TcpClient>> tasks;
+        private readonly ILogger logger;
+        private List<Task<MyTcpClient>> tasks;
         private CancellationTokenSource cts;
         private Task cleanUpTask;
 
-        public TcpServer(int port)
+        public TcpServer(int port, ILogger logger)
         {
             this.port = port;
-            this.tasks = new List<Task<TcpClient>>();
+            this.logger = logger;
+            this.tasks = new List<Task<MyTcpClient>>();
             this.cts = new CancellationTokenSource();
         }
 
@@ -78,23 +95,29 @@ namespace TcpServerDemo
             this.tasks.Remove(finishedTask);
 
             var client = await finishedTask.ConfigureAwait(false);
-
-            Console.WriteLine($"Client {client.Client.RemoteEndPoint} disconnected.");
+            //Console.WriteLine($"Client {client.Client.RemoteEndPoint} disconnected.");
             client.Dispose();
 
             this.cleanUpTask = this.CleanUp(ct);
         }
 
-        private async Task<TcpClient> HandleClient(TcpClient client, CancellationToken ct)
+        private async Task<MyTcpClient> HandleClient(MyTcpClient client, CancellationToken ct)
         {
-            await Task.Delay(1000, ct).ConfigureAwait(false);
+            using (var stream = client.GetStream())
+            {
+                var buffer = new byte[256];
+                await stream.ReadAsync(buffer, 0, buffer.Length, ct).ConfigureAwait(false);
+            }
+
             return client;
         }
 
         private Task AddTask(TcpClient client, CancellationToken ct)
         {
             Console.WriteLine($"Client {client.Client.RemoteEndPoint} connected.");
-            var task = this.HandleClient(client, ct);
+
+            var c = new MyTcpClient(client, logger);
+            var task = this.HandleClient(c, ct);
             this.tasks.Add(task);
             return this.ResetCleanUp();
         }
@@ -128,6 +151,34 @@ namespace TcpServerDemo
         {
             await this.StopCleanUp();
             this.StartCleanUp();
+        }
+    }
+
+    public class MyTcpClient : IDisposable
+    {
+        private readonly TcpClient client;
+        private readonly ILogger logger;
+        private readonly IDisposable loggingScope;
+
+        public MyTcpClient(TcpClient client, ILogger logger)
+        {
+            this.client = client;
+            this.logger = logger;
+
+            this.loggingScope = this.logger.BeginScope(this.client.Client.RemoteEndPoint);
+            this.logger.LogTrace("connected");
+        }
+
+        public NetworkStream GetStream()
+        {
+            return this.client.GetStream();
+        }
+
+        public void Dispose()
+        {
+            this.logger.LogTrace("disconnected");
+            this.client.Dispose();
+            this.loggingScope.Dispose();
         }
     }
 }
